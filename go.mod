@@ -1,4 +1,4 @@
-module pygoreadability
+module github.com/go-shiori/pygoreadability
 
 go 1.22.1
 
