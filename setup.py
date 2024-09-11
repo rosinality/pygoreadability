@@ -239,7 +239,8 @@ class BuildGoPy(_build_ext):
 
         # compile the extension
         ext.sources = [f"{base_path}/{pkg}.c"]
-        ext.name = f"{ext.name}._{ext.name.split('.')[-1]}"
+        ext.name = f"{ext.name}._{pkg}"
+        print(ext.name)
         _build_ext.build_extension(self, ext)
 
 
@@ -266,9 +267,9 @@ setuptools.setup(
     install_requires=['pandas', 'redbaron', 'typing-extensions', 'pyyaml'],
 
     ext_modules=[
-        setuptools.Extension('pygoreadability.pyexp', ["github.com/rosinality/pygoreadability"])
+        setuptools.Extension('pygoreadability.ext', ["github.com/rosinality/pygoreadability"])
     ],
-    py_modules=['pygoreadability', "pygoreadability.pyexp"],
+    py_modules=['pygoreadability', "pygoreadability.ext"],
     cmdclass={'build_ext': BuildGoPy},
     zip_safe=False,
 
