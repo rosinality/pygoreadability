@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 
 from setuptools import setup
+from setuptools.dist import Distribution
 from setuptools.command.build_py import build_py
 from wheel.bdist_wheel import bdist_wheel
 
@@ -27,6 +28,12 @@ class BDistWheel(bdist_wheel):
         self.root_is_pure = False
 
 
+class BinaryDistribution(Distribution):
+    def has_ext_modules(self) -> bool:
+        return True
+
+
 setup(
     cmdclass={"build_py": BuildPy, "bdist_wheel": BDistWheel},
+    distclass=BinaryDistribution,
 )
