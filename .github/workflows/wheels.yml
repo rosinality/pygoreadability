@@ -1,0 +1,51 @@
+name: Build wheels
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-14]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Go (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21.13"
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.19.2
+        env:
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
+          CIBW_SKIP: "pp*"
+          CIBW_ARCHS_MACOS: "arm64"
+          CIBW_ARCHS_LINUX: "x86_64"
+          CIBW_OUTPUT_DIR: "wheelhouse"
+          CIBW_ENVIRONMENT_MACOS: "GOREADABILITY_VERSION=latest"
+          CIBW_BEFORE_ALL_LINUX: >-
+            curl -sSL https://go.dev/dl/go1.21.13.linux-amd64.tar.gz -o /tmp/go.tgz
+            && rm -rf /usr/local/go
+            && tar -C /usr/local -xzf /tmp/go.tgz
+          CIBW_ENVIRONMENT_LINUX: "PATH=/usr/local/go/bin:$PATH GOREADABILITY_VERSION=latest"
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
