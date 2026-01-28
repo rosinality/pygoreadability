@@ -6,6 +6,7 @@ from pathlib import Path
 
 from setuptools import setup
 from setuptools.command.build_py import build_py
+from wheel.bdist_wheel import bdist_wheel
 
 
 ROOT = Path(__file__).resolve().parent
@@ -19,6 +20,13 @@ class BuildPy(build_py):
         super().run()
 
 
+class BDistWheel(bdist_wheel):
+    def finalize_options(self) -> None:
+        super().finalize_options()
+        # Ensure the wheel is tagged as platform-specific because it bundles a shared library.
+        self.root_is_pure = False
+
+
 setup(
-    cmdclass={"build_py": BuildPy},
+    cmdclass={"build_py": BuildPy, "bdist_wheel": BDistWheel},
 )
