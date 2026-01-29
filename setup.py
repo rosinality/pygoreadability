@@ -9,6 +9,8 @@ from setuptools.dist import Distribution
 from setuptools.command.build_py import build_py
 from wheel.bdist_wheel import bdist_wheel
 
+ROOT = Path(__file__).resolve().parent
+
 
 class BuildPy(build_py):
     def run(self) -> None:
