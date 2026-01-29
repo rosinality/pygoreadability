@@ -13,6 +13,35 @@ from wheel.bdist_wheel import bdist_wheel
 ROOT = Path(__file__).resolve().parent
 
 
+def _parse_pyproject_metadata() -> tuple[str | None, str | None]:
+    pyproject = ROOT / "pyproject.toml"
+    if not pyproject.is_file():
+        return None, None
+    name = None
+    version = None
+    in_project = False
+    with pyproject.open("r", encoding="utf-8") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("[") and line.endswith("]"):
+                in_project = line == "[project]"
+                continue
+            if not in_project or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip("\"'")
+            if key == "name":
+                name = value
+            elif key == "version":
+                version = value
+            if name and version:
+                break
+    return name, version
+
+
 class BuildPy(build_py):
     def run(self) -> None:
         # Ensure the shared library is built before packaging.
@@ -34,6 +63,8 @@ class BinaryDistribution(Distribution):
 
 
 setup(
+    name=_parse_pyproject_metadata()[0],
+    version=_parse_pyproject_metadata()[1],
     cmdclass={"build_py": BuildPy, "bdist_wheel": BDistWheel},
     distclass=BinaryDistribution,
 )
