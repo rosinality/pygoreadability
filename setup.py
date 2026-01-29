@@ -62,9 +62,9 @@ class BinaryDistribution(Distribution):
         return True
 
 
-setup(
-    name=_parse_pyproject_metadata()[0],
-    version=_parse_pyproject_metadata()[1],
-    cmdclass={"build_py": BuildPy, "bdist_wheel": BDistWheel},
-    distclass=BinaryDistribution,
-)
+_name, _version = _parse_pyproject_metadata()
+_setup_kwargs = {"cmdclass": {"build_py": BuildPy, "bdist_wheel": BDistWheel}, "distclass": BinaryDistribution}
+if _name and _version:
+    _setup_kwargs.update({"name": _name, "version": _version})
+
+setup(**_setup_kwargs)
