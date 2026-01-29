@@ -13,33 +13,21 @@ from wheel.bdist_wheel import bdist_wheel
 ROOT = Path(__file__).resolve().parent
 
 
-def _parse_pyproject_metadata() -> tuple[str | None, str | None]:
+def _parse_pyproject_metadata() -> tuple[str, str]:
     pyproject = ROOT / "pyproject.toml"
     if not pyproject.is_file():
-        return None, None
-    name = None
-    version = None
-    in_project = False
-    with pyproject.open("r", encoding="utf-8") as f:
-        for raw in f:
-            line = raw.strip()
-            if not line or line.startswith("#"):
-                continue
-            if line.startswith("[") and line.endswith("]"):
-                in_project = line == "[project]"
-                continue
-            if not in_project or "=" not in line:
-                continue
-            key, value = line.split("=", 1)
-            key = key.strip()
-            value = value.strip().strip("\"'")
-            if key == "name":
-                name = value
-            elif key == "version":
-                version = value
-            if name and version:
-                break
-    return name, version
+        raise RuntimeError("pyproject.toml not found; cannot read package metadata")
+    try:
+        import tomllib
+    except ModuleNotFoundError:  # Python < 3.11
+        import tomli as tomllib
+    data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+    project = data.get("project", {})
+    name = project.get("name")
+    version = project.get("version")
+    if not name or not version:
+        raise RuntimeError("Missing name/version in pyproject.toml [project]")
+    return str(name), str(version)
 
 
 class BuildPy(build_py):
@@ -63,8 +51,10 @@ class BinaryDistribution(Distribution):
 
 
 _name, _version = _parse_pyproject_metadata()
-_setup_kwargs = {"cmdclass": {"build_py": BuildPy, "bdist_wheel": BDistWheel}, "distclass": BinaryDistribution}
-if _name and _version:
-    _setup_kwargs.update({"name": _name, "version": _version})
 
-setup(**_setup_kwargs)
+setup(
+    name=_name,
+    version=_version,
+    cmdclass={"build_py": BuildPy, "bdist_wheel": BDistWheel},
+    distclass=BinaryDistribution,
+)
