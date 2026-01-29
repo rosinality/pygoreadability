@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel", "tomli; python_version < '3.11'"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,7 @@ description = "CPython bindings for go-readability (FromString)"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
-authors = [{name = "Your Name"}]
+authors = [{name = "Kim Seonghyeon"}]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",

@@ -10,26 +10,6 @@ from setuptools.command.build_py import build_py
 from wheel.bdist_wheel import bdist_wheel
 
 
-ROOT = Path(__file__).resolve().parent
-
-
-def _parse_pyproject_metadata() -> tuple[str, str]:
-    pyproject = ROOT / "pyproject.toml"
-    if not pyproject.is_file():
-        raise RuntimeError("pyproject.toml not found; cannot read package metadata")
-    try:
-        import tomllib
-    except ModuleNotFoundError:  # Python < 3.11
-        import tomli as tomllib
-    data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
-    project = data.get("project", {})
-    name = project.get("name")
-    version = project.get("version")
-    if not name or not version:
-        raise RuntimeError("Missing name/version in pyproject.toml [project]")
-    return str(name), str(version)
-
-
 class BuildPy(build_py):
     def run(self) -> None:
         # Ensure the shared library is built before packaging.
@@ -50,11 +30,7 @@ class BinaryDistribution(Distribution):
         return True
 
 
-_name, _version = _parse_pyproject_metadata()
-
 setup(
-    name=_name,
-    version=_version,
     cmdclass={"build_py": BuildPy, "bdist_wheel": BDistWheel},
     distclass=BinaryDistribution,
 )
