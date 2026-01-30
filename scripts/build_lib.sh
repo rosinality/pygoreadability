@@ -12,6 +12,8 @@ case "$OS" in
     ;;
   Linux)
     EXT="so"
+    export CC="${CC:-gcc}"
+    export CXX="${CXX:-g++}"
     ;;
   *)
     echo "unsupported OS: $OS" >&2
