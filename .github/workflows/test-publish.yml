@@ -44,7 +44,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.19.2
         env:
           CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
-          CIBW_SKIP: "pp*"
+          CIBW_SKIP: "pp* *-musllinux_*"
           CIBW_ARCHS_MACOS: "${{ matrix.archs_macos }}"
           CIBW_ARCHS_LINUX: "${{ matrix.archs_linux }}"
           CIBW_OUTPUT_DIR: "wheelhouse"
