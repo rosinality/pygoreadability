@@ -6,11 +6,20 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-14]
+        include:
+          - os: ubuntu-22.04
+            archs_linux: x86_64
+            go_tgz_arch: amd64
+          - os: ubuntu-22.04-arm
+            archs_linux: aarch64
+            go_tgz_arch: arm64
+          - os: macos-14
+            archs_macos: arm64
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -32,12 +41,12 @@ jobs:
         env:
           CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
           CIBW_SKIP: "pp*"
-          CIBW_ARCHS_MACOS: "arm64"
-          CIBW_ARCHS_LINUX: "x86_64 aarch64"
+          CIBW_ARCHS_MACOS: "${{ matrix.archs_macos }}"
+          CIBW_ARCHS_LINUX: "${{ matrix.archs_linux }}"
           CIBW_OUTPUT_DIR: "wheelhouse"
           CIBW_ENVIRONMENT_MACOS: "GOREADABILITY_VERSION="
           CIBW_BEFORE_ALL_LINUX: >-
-            curl -sSL https://go.dev/dl/go1.23.0.linux-amd64.tar.gz -o /tmp/go.tgz
+            curl -sSL https://go.dev/dl/go1.23.0.linux-${{ matrix.go_tgz_arch }}.tar.gz -o /tmp/go.tgz
             && rm -rf /usr/local/go
             && tar -C /usr/local -xzf /tmp/go.tgz
           CIBW_ENVIRONMENT_LINUX: "PATH=/usr/local/go/bin:$PATH GOREADABILITY_VERSION="
