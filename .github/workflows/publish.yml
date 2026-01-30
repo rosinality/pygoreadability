@@ -50,6 +50,8 @@ jobs:
             && rm -rf /usr/local/go
             && tar -C /usr/local -xzf /tmp/go.tgz
           CIBW_ENVIRONMENT_LINUX: "PATH=/usr/local/go/bin:$PATH GOREADABILITY_VERSION="
+          CIBW_TEST_REQUIRES: "pytest"
+          CIBW_TEST_COMMAND: "pytest -q"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
