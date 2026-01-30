@@ -35,7 +35,7 @@ jobs:
           CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-*"
           CIBW_SKIP: "pp*"
           CIBW_ARCHS_MACOS: "arm64"
-          CIBW_ARCHS_LINUX: "x86_64"
+          CIBW_ARCHS_LINUX: "x86_64 aarch64"
           CIBW_OUTPUT_DIR: "wheelhouse"
           CIBW_ENVIRONMENT_MACOS: "GOREADABILITY_VERSION=latest"
           CIBW_BEFORE_ALL_LINUX: >-
