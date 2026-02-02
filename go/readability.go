@@ -34,6 +34,7 @@ import "C"
 
 import (
     "bytes"
+    "fmt"
     "net/url"
     "strings"
     "time"
@@ -43,7 +44,12 @@ import (
 )
 
 //export FromString
-func FromString(html *C.char, htmlLen C.int, pageURL *C.char, urlLen C.int) *C.ReadabilityArticle {
+func FromString(html *C.char, htmlLen C.int, pageURL *C.char, urlLen C.int) (out *C.ReadabilityArticle) {
+    defer func() {
+        if r := recover(); r != nil {
+            out = newError("panic: " + fmt.Sprint(r))
+        }
+    }()
     if html == nil || htmlLen <= 0 {
         return newError("html input is nil")
     }
@@ -84,10 +90,15 @@ func FromString(html *C.char, htmlLen C.int, pageURL *C.char, urlLen C.int) *C.R
         return newError(err.Error())
     }
 
+    excerpt := ""
+    if article.Node != nil {
+        excerpt = article.Excerpt()
+    }
+
     return newArticle(
         article.Title(),
         article.Byline(),
-        article.Excerpt(),
+        excerpt,
         article.SiteName(),
         article.ImageURL(),
         article.Favicon(),
